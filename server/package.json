@@ -1,0 +1,37 @@
+{
+  "name": "node-screenshot",
+  "version": "1.0.0",
+  "description": "simple api to take screenshots",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "production": "node ./build/app.js",
+    "dev": "nodemon index.js",
+    "build": "esbuild --bundle ./index.js --outfile=build/app.js --minify --platform=node",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "puppeteer",
+    "screenshot"
+  ],
+  "author": "Manshoor Ahmad",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "esbuild": "^0.12.18",
+    "express": "^4.17.1",
+    "html2canvas": "^1.1.4",
+    "jshint": "^2.13.0",
+    "jspdf": "^2.3.1",
+    "puppeteer": "^10.1.0",
+    "redis": "^3.1.2",
+    "uuid": "^8.3.2"
+  },
+  "engines": {
+    "node": ">=14.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}

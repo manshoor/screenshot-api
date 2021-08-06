@@ -1,0 +1,66 @@
+version: "3.9"
+services:
+  ### NGINX #########################################
+  nginx:
+    container_name: reverse-proxy
+    image: nginx:stable-alpine
+    # restart: always
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./.env
+    depends_on:
+      - node-app
+#      - redis
+    networks:
+      - app-backend-network
+  ### NODE #########################################
+  node-app:
+    container_name: puppeeteer
+    # restart: always
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+    # volumes allow sharing of data in run-time between host and container
+    volumes:
+      # - .:/app
+      # map current local directory to the /usr/src/app inside the container
+      #This is a must for development in order to update our container whenever a change to the source code is made. Without this, you would have to rebuild the image each time you make a change to source code.
+      - ${SERVER_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      # don't overwrite this folder in container with the local one
+      - /usr/src/app/node_modules
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    env_file:
+      - ./.env
+    command: npm run start
+    tty: true
+    networks:
+      - app-backend-network
+  ### REDIS #########################################
+#  redis:
+#    image: redis:alpine
+#    # restart: always
+#    volumes:
+#      - ${DATA_PATH_HOST}/redis:/data
+#    ports:
+#      - "${REDIS_PORT}:6379"
+#    depends_on:
+#      - node-app
+#    networks:
+#      - app-backend-network
+
+networks:
+  app-backend-network:
+    driver: ${NETWORKS_DRIVER}
+
+#volumes:
+#  redisdata:
+#    driver: ${VOLUMES_DRIVER}
