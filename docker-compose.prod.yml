@@ -9,18 +9,21 @@ services:
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
   ### NODE #########################################
   node-app:
-    deploy:
-      replicas: 8
-      restart_policy:
-        condition: any
-      update_config:
-        parallelism: 2
-        delay: 15s
+#    deploy:
+#      replicas: 2 # we can increase it in future to as many as we want
+#      restart_policy:
+#        condition: any
+#      update_config:
+#        parallelism: 2
+#        delay: 15s
     build:
+      context: ./server
+      dockerfile: Dockerfile.Prod
       args:
         - NODE_ENV=production
+        - PORT=${PORT}
     environment:
       - NODE_ENV=production
+      - PORT=${PORT}
     env_file:
       - ./.env
-    command: node server.js

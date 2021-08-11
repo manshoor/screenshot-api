@@ -1,4 +1,5 @@
 'use strict';
+const {APP_DOMAIN} = require("../config/config");
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const {getInt, getUrlFromPath, isValidUrl} = require('../helper/validator');
@@ -129,7 +130,7 @@ exports.screenshot = async (req, res) => {
     });
     console.log('done');
     await browser.close();
-    res.status(200).send({status: 'success', file: path, siteName: name, fileName: `${name}.${type}`});
+    res.status(200).send({status: 'success',  siteName: name, fileName: `${APP_DOMAIN}/${name}.${type}`});
   } catch (err) {
     res.status(500).send({status: 'fail', msg: err.message});
     console.log(`❌ Error: ${err.message}`);

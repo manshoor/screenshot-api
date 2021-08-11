@@ -1,5 +1,6 @@
+# --------------> The build image
 # specify base image from dockerhub
-FROM node:lts-alpine3.14@sha256:2fbaecb39357dec8af7afacaba214bba1ecb1da55ba8163f6afe531534787f80
+FROM node:lts-alpine3.14@sha256:2fbaecb39357dec8af7afacaba214bba1ecb1da55ba8163f6afe531534787f80 as build
 
 LABEL version="1.0"
 LABEL maintainer="Manshoor Ahmad"
@@ -22,16 +23,24 @@ ENV PATH="/usr/src/app/node_modules/.bin:${PATH}"
 
 COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
 # Install dependencies and clear npm cache
-# INSTALLING AS A ROOT USER
+#RUN npm install && npm cache clean --force
 USER 0
-RUN npm install --global nodemon
-RUN npm install && npm cache clean --force
-#RUN npm i --only=production && npm cache clean --force
+RUN npm i --only=production && npm cache clean --force
 COPY . .
+# default dev command
+#CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "build" ]
+#CMD [ "npm", "run", "production" ]
+
+# --------------> The production image
+
+FROM node:lts-alpine3.14@sha256:2fbaecb39357dec8af7afacaba214bba1ecb1da55ba8163f6afe531534787f80 as production
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node . /usr/src/app
+
 ARG PORT
-# use EXPOSE command to have our port mapped by the docker daemon
+## use EXPOSE command to have our port mapped by the docker daemon
 EXPOSE $PORT
 USER node
-
-# default dev command
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "production" ]

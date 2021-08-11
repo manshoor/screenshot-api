@@ -7,11 +7,17 @@ endif
 build:
 	docker-compose up --build --remove-orphans
 
+build-prod:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --remove-orphans
+
 up:
 	docker-compose up
 
 up-d:
 	docker-compose up -d
+
+up-d-prod:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 down:
 	docker-compose down
