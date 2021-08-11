@@ -4,7 +4,7 @@ services:
   nginx:
     container_name: reverse-proxy
     image: nginx:stable-alpine
-    # restart: always
+    restart: unless-stopped
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
     volumes:
@@ -22,7 +22,7 @@ services:
   ### NODE #########################################
   node-app:
     container_name: puppeeteer
-    # restart: always
+    restart: unless-stopped
     build:
       context: ./server
       dockerfile: Dockerfile

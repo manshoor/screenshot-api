@@ -14,7 +14,6 @@ ENV CHROMIUM_PATH="/usr/bin/chromium-browser"
 ENV PUPPETEER_EXECUTABLE_PATH="${CHROMIUM_PATH}"
 # workdir is where our code shall live in the container
 # all commands executed relative to this directory
-USER node
 WORKDIR /usr/src/app
 
 # Add node packages to path #
@@ -28,6 +27,7 @@ RUN npm i --only=production && npm cache clean --force
 COPY . .
 # use EXPOSE command to have our port mapped by the docker daemon
 EXPOSE 3000
+USER node
 
 # default dev command
 #CMD [ "npm", "run", "dev" ]
