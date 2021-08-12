@@ -28,8 +28,7 @@ USER 0
 RUN npm i --only=production && npm cache clean --force
 COPY . .
 # default dev command
-#CMD [ "npm", "run", "dev" ]
-CMD [ "npm", "run", "build" ]
+#CMD [ "npm", "run", "build" ] # not working for some reason
 #CMD [ "npm", "run", "production" ]
 
 # --------------> The production image
@@ -43,4 +42,4 @@ ARG PORT
 ## use EXPOSE command to have our port mapped by the docker daemon
 EXPOSE $PORT
 USER node
-CMD [ "npm", "run", "production" ]
+CMD [ "npm", "run", "start" ]

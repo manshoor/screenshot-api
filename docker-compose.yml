@@ -36,6 +36,7 @@ services:
       - ${SERVER_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       # don't overwrite this folder in container with the local one
       - /usr/src/app/node_modules
+      - /usr/src/app/build
     environment:
       - NODE_ENV=production
       - PORT=${PORT}
