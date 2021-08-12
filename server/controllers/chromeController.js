@@ -63,7 +63,6 @@ exports.screenshot = async (req, res) => {
 
   // const siteURL = 'https://domestic-bliss.com.au/';
   // const siteURL = 'https://www.base64decoder.io/node-js/';
-  // const siteURL = 'https://reputationdatabase.com/social_image_public/social_review_image/37781/39672/15732637';
 
   let browser = null;
   try {
