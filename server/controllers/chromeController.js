@@ -72,7 +72,7 @@ exports.screenshot = async (req, res) => {
       // devtools: true,
       ignoreHTTPSErrors: true,
       args: [
-        '--window-size=1440,1080',
+        '--window-size=1366,1080',
         // important to add
         '--disable-gpu',
         '--disable-setuid-sandbox',
