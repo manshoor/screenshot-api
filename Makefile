@@ -28,3 +28,6 @@ down-V:
 volume:
 	docker volume inspect node-screenshot-v2_redisdata
 
+clean-up-deep:
+	docker image prune --all -f; docker container prune -f; docker volume prune -f
+
