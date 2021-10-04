@@ -4,10 +4,16 @@ FROM node:lts-alpine3.14@sha256:2fbaecb39357dec8af7afacaba214bba1ecb1da55ba8163f
 LABEL version="1.0"
 LABEL maintainer="Manshoor Ahmad"
 LABEL description="Development image for the SCREENSHOT API"
-RUN apk add --update --no-cache \
-            chromium \
-            nodejs \
-            npm
+# Installs latest Chromium (92) package.
+RUN apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont \
+      nodejs \
+      yarn
 # Do not use puppeteer embedded chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
 ENV CHROMIUM_PATH="/usr/bin/chromium-browser"
@@ -22,14 +28,15 @@ ENV PATH="/usr/src/app/node_modules/.bin:${PATH}"
 
 COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
 # Install dependencies and clear npm cache
-# INSTALLING AS A ROOT USER
+#RUN npm install && npm cache clean --force
 USER 0
 RUN npm install --global nodemon
 RUN npm install && npm cache clean --force
 #RUN npm i --only=production && npm cache clean --force
 COPY . .
 ARG PORT
-# use EXPOSE command to have our port mapped by the docker daemon
+COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
+## use EXPOSE command to have our port mapped by the docker daemon
 EXPOSE $PORT
 USER node
 
