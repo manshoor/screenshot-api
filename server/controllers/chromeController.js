@@ -22,7 +22,7 @@ exports.screenshot = async (req, res) => {
     omitBackground = true,
     waitUntil = 'networkidle0',
     delay = false,
-    width = 1920,
+    width = 1366,
     height = 1080,
     timeout = 120,
   } = query;
@@ -89,15 +89,15 @@ exports.screenshot = async (req, res) => {
     });
     const page = await browser.newPage();
 
-    const dimensions = await page.evaluate(() => {
-      return {
-        width: 1920,
-        height: 1080,
-        deviceScaleFactor: window.devicePixelRatio
-      };
-    });
+    // const dimensions = await page.evaluate((intWidth, intHeight) => {
+    //   return {
+    //     width: intWidth,
+    //     height: intHeight,
+    //     deviceScaleFactor: window.devicePixelRatio
+    //   };
+    // }, intWidth, intHeight);
 
-    await page.setViewport({width: dimensions.width, height: dimensions.height, deviceScaleFactor: 1});
+    await page.setViewport({width: intWidth, height: intHeight, deviceScaleFactor: 1});
 
     await page.goto(siteURL, {
       waitUntil: waitUntil,
