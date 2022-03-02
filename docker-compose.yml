@@ -28,6 +28,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_ENV=development
+    image: manshooras/node-screenshot-app
     # volumes allow sharing of data in run-time between host and container
     volumes:
       # - .:/app

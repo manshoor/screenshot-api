@@ -19,6 +19,15 @@ up-d:
 up-d-prod:
 	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
+up-d-prod-build:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+up-d-prod-build-node:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --build node-app
+
+up-d-prod-build-node-force:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --no-deps --build node-app
+
 down:
 	docker-compose down
 
