@@ -44,7 +44,16 @@ volume:
 	docker volume inspect screenshot-api_redisdata
 
 monitor-all:
-	docker-compose -f logs
+	docker-compose logs
+
+dps:
+	docker ps -a
+
+dcps:
+	docker-compose ps -a
+
+images:
+	docker images -a
 
 monitor-node:
 	docker-compose logs -f -t node-app

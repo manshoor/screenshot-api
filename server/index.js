@@ -11,7 +11,7 @@ const limiter = rateLimit({
     max     : RATE_LIMIT, // limit each IP to 2 requests per windowMs
     headers : true,
     handler : function (req, res, /*next*/) {
-        console.log(` -------> ${req.ip} exceeded the rate limit.`);
+        console.log(` -------> \n ${req.ip} exceeded the rate limit. \n`);
         return res.status(429).json({
             status: 'error',
             error : 'Woh, Slow down! You are making too many requests.'
@@ -29,14 +29,14 @@ app.disable('x-powered-by');
 
 app.get("/", (req, res) => {
     res.send("<h2>Reinventing the wheel. Again. </h2>");
-    console.log(" -------> Reinventing the wheel. Again. ");
+    console.log(" \n -------> Reinventing the wheel. Again. \n ");
 });
 app.get("/api/v1", (req, res) => {
     res.send("<h2>welcome to screenshot API</h2>");
-    console.log(" -------> yeah it ran");
+    console.log(" \n -------> yeah it ran \n ");
 });
 app.use(express.static(__dirname + '/tmp'));
 app.use("/api/v1/screenshot", screenshotRouter);
 // process.on('warning', e => console.warn(e.stack));
-const server            = app.listen(PORT, () => console.log(` -------> listening on port ${PORT}`));
+const server            = app.listen(PORT, () => console.log(` \n -------> listening on port ${PORT} \n`));
 server.keepAliveTimeout = 61 * 1000;
