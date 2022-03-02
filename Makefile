@@ -28,6 +28,12 @@ up-d-prod-build-node:
 up-d-prod-build-node-force:
 	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --no-deps --build node-app
 
+prod-push-node:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml push node-app
+
+prod-pull-node:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull node-app
+
 down:
 	docker-compose down
 
