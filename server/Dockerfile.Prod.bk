@@ -1,19 +1,14 @@
+# --------------> The build image
 # specify base image from dockerhub
-FROM node:lts-alpine3.15@sha256:425c81a04546a543da824e67c91d4a603af16fbc3d875ee2f276acf8ec2b1577
+FROM node:lts-alpine3.14@sha256:2fbaecb39357dec8af7afacaba214bba1ecb1da55ba8163f6afe531534787f80 as build
 
 LABEL version="1.0"
 LABEL maintainer="Manshoor Ahmad"
 LABEL description="Development image for the SCREENSHOT API"
-# Installs latest Chromium (92) package.
-RUN  apk -U --no-cache update && apk -U --no-cache add \
-      chromium \
-      nss \
-      freetype \
-      harfbuzz \
-      ca-certificates \
-      ttf-freefont \
-      nodejs \
-      yarn
+RUN apk add --update --no-cache \
+            chromium \
+            nodejs \
+            npm
 # Do not use puppeteer embedded chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
 ENV CHROMIUM_PATH="/usr/bin/chromium-browser"
@@ -30,15 +25,21 @@ COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
 # Install dependencies and clear npm cache
 #RUN npm install && npm cache clean --force
 USER 0
-RUN npm install --global nodemon
-RUN npm install && npm cache clean --force
-#RUN npm i --only=production && npm cache clean --force
+RUN npm i --only=production && npm cache clean --force
 COPY . .
+# default dev command
+#CMD [ "npm", "run", "build" ] # not working for some reason
+#CMD [ "npm", "run", "production" ]
+
+# --------------> The production image
+
+FROM node:lts-alpine3.14@sha256:2fbaecb39357dec8af7afacaba214bba1ecb1da55ba8163f6afe531534787f80 as production
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node . /usr/src/app
+
 ARG PORT
-COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
 ## use EXPOSE command to have our port mapped by the docker daemon
 EXPOSE $PORT
 USER node
-
-# default dev command
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "start" ]

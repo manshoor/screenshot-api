@@ -26,8 +26,11 @@ down-V:
 	docker-compose down -v
 
 volume:
-	docker volume inspect node-screenshot-v2_redisdata
+	docker volume inspect screenshot-api_redisdata
+
+dl:
+	docker-compose logs
 
 clean-up-deep:
-	docker image prune --all -f; docker container prune -f; docker volume prune -f
+	docker image prune --all -f; docker container prune -f; docker volume prune -f; docker rmi $(docker images -q); docker rmi $(docker images -q -f dangling=true); docker rmi $(docker images | grep "^<none>" | awk "{print $3}"); docker volume rm $(docker volume ls -qf dangling=true);
 

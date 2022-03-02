@@ -1,9 +1,26 @@
 'use strict';
-const express          = require("express");
-const cors             = require("cors");
-const {PORT}           = require("./config/config");
-const screenshotRouter = require("./routes/screenshotRouter");
-const app              = express();
+const express                      = require("express");
+const rateLimit                    = require('express-rate-limit');
+const cors                         = require("cors");
+const {PORT, windowMs, RATE_LIMIT} = require("./config/config");
+const screenshotRouter             = require("./routes/screenshotRouter");
+const app                          = express();
+
+const limiter = rateLimit({
+    windowMs: windowMs, // 1 minute
+    max     : RATE_LIMIT, // limit each IP to 2 requests per windowMs
+    headers : true,
+    handler : function (req, res, /*next*/) {
+        return res.status(429).json({
+            status: 'error',
+            error : 'Woh, Slow down! You are making too many requests.'
+        });
+    }
+});
+
+// Use the limit rule as an application middleware
+app.use(limiter);
+
 app.enable("trust proxy");
 app.use(cors({}));
 app.use(express.json());

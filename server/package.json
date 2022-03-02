@@ -25,8 +25,9 @@
     "html2canvas": "^1.1.4",
     "jshint": "^2.13.0",
     "jspdf": "^2.3.1",
-    "puppeteer": "^10.1.0",
+    "puppeteer": "^13.4.1",
     "redis": "^3.1.2",
+    "user-agents": "^1.0.942",
     "uuid": "^8.3.2"
   },
   "engines": {

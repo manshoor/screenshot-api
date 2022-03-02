@@ -1,12 +1,15 @@
 'use strict';
-const {APP_DOMAIN}                         = require("../config/config");
-const puppeteer                            = require('puppeteer');
-const fs                                   = require('fs');
-const {getInt, getUrlFromPath, isValidUrl} = require('../helper/validator');
-const {parse}                              = require("url");
-const {v4: uuidv4}                         = require('uuid');
-
-exports.screenshot = async (req, res) => {
+const {APP_DOMAIN, REDIS_PORT, REDIS_URL} = require("../config/config");
+const puppeteer                           = require('puppeteer');
+const fs                                  = require('fs');
+const {getInt, isValidUrl}                = require('../helper/validator');
+const {parse}                             = require("url");
+const {v4: uuidv4}                        = require('uuid');
+const userAgents                          = require("user-agents");
+const redis                               = require('redis');
+const redisClient                         = redis.createClient(REDIS_PORT, REDIS_URL);
+const crypto                              = require('crypto');
+exports.screenshot                        = async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
     // if screenshots directory is not exist then create one
@@ -44,14 +47,16 @@ exports.screenshot = async (req, res) => {
             result: 'invalid url'
         });
     }
+    const md5sum          = crypto.createHash('md5');
+    const md5CheckSumHash = md5sum.update(capture).digest("hex");
     // Locates the temp directory for temporary storage
-    const tempFolder = './tmp';
+    const tempFolder      = './tmp';
 
     // get params from POST request
     const siteURL = captureURL;
     const name    = uuidv4();
     // Launch puppeteer
-
+    await console.log(` -------> START: ${siteURL}`);
     // Path to temp folder
     let path = `${tempFolder}/${name}.${type}`;
 
@@ -65,10 +70,13 @@ exports.screenshot = async (req, res) => {
     try {
 
         browser    = await puppeteer.launch({
-            headless: true,
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
+            headless      : true,
             // devtools: true,
             ignoreHTTPSErrors: true,
             args             : [
+                '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"',
+                '--ignore-certificate-errors',
                 '--window-size=1366,1080',
                 // important to add
                 '--disable-gpu',
@@ -81,10 +89,14 @@ exports.screenshot = async (req, res) => {
                 '--allow-external-pages',
                 '--data-reduction-proxy-http-proxies',
                 '--start-maximized', // Start in maximized state
-                "--unlimited-storage",
-                "--full-memory-crash-report"
+                '--unlimited-storage',
+                '--disable-accelerated-2d-canvas',
+                '--full-memory-crash-report',
+                '--headless',
+                // '--single-process',
             ],
-            userDataDir      : "/usr/cache",
+            userDataDir      : tempFolder,
+            // 'dumpio'         : true,
         });
         const page = await browser.newPage();
 
@@ -102,20 +114,21 @@ exports.screenshot = async (req, res) => {
 
         await page.setViewport({width: intWidth, height: intHeight, deviceScaleFactor: 1});
 
-        await page.goto(siteURL, {
-            waitUntil: ['load', 'networkidle0', 'domcontentloaded'],
-            // timeout: 60,
-        });
-        console.log('page has been loaded!');
+        const userAgent = new userAgents([
+            /Safari/,
+            {
+                connection: {
+                    type: 'wifi',
+                },
+                platform  : 'MacIntel',
+            },
+        ]);
+        await console.log(`userAgent: ${userAgent.toString()}`);
+        await page.setUserAgent(userAgent.toString()); // added this
+        let status = await page.goto(siteURL, {waitUntil: ['load', 'networkidle0', 'domcontentloaded'],}).catch(e => void 0);
+        await console.log('page status code: ' + status.status());
+        await console.log('page has been loaded!');
 
-        // Emitted when the DOM is parsed and ready (without waiting for resources)
-        // await page.once('domcontentloaded', () => console.info('✅ DOM is ready'));
-
-        // The promise resolves after navigation has finished
-        // await page.waitForNavigation()
-
-        // Emitted when the page is fully loaded
-        // await page.once('load', () => console.info('✅ Page is loaded'));
         //scroll to bottom
         await autoScroll(page);
 
@@ -131,15 +144,24 @@ exports.screenshot = async (req, res) => {
             type          : type,
             omitBackground: omitBackground,
             quality       : qual
-        });
-        console.log('done');
+        }).catch(e => console.log(' unable to capture ' + e));
+
+        await console.log('done');
         await browser.close();
-        res.status(200).send({status: 'success', siteName: name, fileName: `${APP_DOMAIN}/${name}.${type}`});
+        const responseData = {status: 'success', siteName: name, fileName: `${APP_DOMAIN}/${name}.${type}`};
+        redisClient.setex(md5CheckSumHash, 1200, JSON.stringify(responseData));
+        res.status(200).send(responseData);
     } catch (err) {
-        res.status(500).send({status: 'fail', msg: err.message});
-        console.log(`❌ Error: ${err.message}`);
+        if (browser !== null) {
+            res.status(500).send({status: 'fail', msg: err.message});
+        }
+        await console.log(`❌ Error: ${err.message}`);
     } finally {
-        console.log(`\n🎉screenshots captured.`);
+        if (browser !== null) {
+            await browser.close();
+        }
+        await console.log(`\n🎉screenshots captured.`);
+        await console.log(` -------> END: ${siteURL}`);
     }
 };
 
