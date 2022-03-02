@@ -1,15 +1,20 @@
 'use strict';
-const {APP_DOMAIN, REDIS_PORT, REDIS_URL} = require("../config/config");
-const puppeteer                           = require('puppeteer');
-const fs                                  = require('fs');
-const {getInt, isValidUrl}                = require('../helper/validator');
-const {parse}                             = require("url");
-const {v4: uuidv4}                        = require('uuid');
-const userAgents                          = require("user-agents");
-const redis                               = require('redis');
-const redisClient                         = redis.createClient(REDIS_PORT, REDIS_URL);
-const crypto                              = require('crypto');
-exports.screenshot                        = async (req, res) => {
+const {
+          APP_DOMAIN,
+          REDIS_PORT,
+          REDIS_URL,
+          REDIS_CACHE_TIME
+      }                    = require("../config/config");
+const puppeteer            = require('puppeteer');
+const fs                   = require('fs');
+const {getInt, isValidUrl} = require('../helper/validator');
+const {parse}              = require("url");
+const {v4: uuidv4}         = require('uuid');
+const userAgents           = require("user-agents");
+const redis                = require('redis');
+const redisClient          = redis.createClient(REDIS_PORT, REDIS_URL);
+const crypto               = require('crypto');
+exports.screenshot         = async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
     // if screenshots directory is not exist then create one
@@ -149,7 +154,7 @@ exports.screenshot                        = async (req, res) => {
         await console.log('done');
         await browser.close();
         const responseData = {status: 'success', siteName: name, fileName: `${APP_DOMAIN}/${name}.${type}`};
-        redisClient.setex(md5CheckSumHash, 1200, JSON.stringify(responseData));
+        redisClient.setex(md5CheckSumHash, REDIS_CACHE_TIME, JSON.stringify(responseData));
         res.status(200).send(responseData);
     } catch (err) {
         if (browser !== null) {
