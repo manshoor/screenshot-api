@@ -128,11 +128,11 @@ exports.screenshot         = async (req, res) => {
                 platform  : 'MacIntel',
             },
         ]);
-        await console.log(`userAgent: ${userAgent.toString()}`);
+        await console.log(` -------> userAgent: ${userAgent.toString()}`);
         await page.setUserAgent(userAgent.toString()); // added this
         let status = await page.goto(siteURL, {waitUntil: ['load', 'networkidle0', 'domcontentloaded'],}).catch(e => void 0);
-        await console.log('page status code: ' + status.status());
-        await console.log('page has been loaded!');
+        await page.waitForResponse(response => response.status() === 200, {timeout: intTimeOut}).catch(e => console.log(' -------> waitForResponse: ' + e));
+        await console.log(' -------> page has been loaded!');
 
         //scroll to bottom
         await autoScroll(page);
@@ -149,23 +149,24 @@ exports.screenshot         = async (req, res) => {
             type          : type,
             omitBackground: omitBackground,
             quality       : qual
-        }).catch(e => console.log(' unable to capture ' + e));
+        }).catch(e => console.log(' ------->  unable to capture ' + e));
 
         await console.log('done');
         await browser.close();
         const responseData = {status: 'success', siteName: name, fileName: `${APP_DOMAIN}/${name}.${type}`};
+        await console.log(` -------> \n Cache set.`);
         redisClient.setex(md5CheckSumHash, REDIS_CACHE_TIME, JSON.stringify(responseData));
         res.status(200).send(responseData);
     } catch (err) {
         if (browser !== null) {
             res.status(500).send({status: 'fail', msg: err.message});
         }
-        await console.log(`❌ Error: ${err.message}`);
+        await console.log(` ------->  Error: ${err.message}`);
     } finally {
         if (browser !== null) {
             await browser.close();
         }
-        await console.log(`\n🎉screenshots captured.`);
+        await console.log(` -------> \n screenshots captured.`);
         await console.log(` -------> END: ${siteURL}`);
     }
 };

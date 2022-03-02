@@ -29,16 +29,16 @@ volume:
 	docker volume inspect screenshot-api_redisdata
 
 monitor-all:
-	docker-compose logs
+	docker-compose -f logs
 
 monitor-node:
-	docker-compose logs node-app
+	docker-compose logs -f -t node-app
 
 monitor-redis:
-	docker-compose logs redis
+	docker-compose logs -f -t redis
 
 monitor-nginx:
-	docker-compose logs nginx
+	docker-compose logs -f -t nginx
 
 clean-up-deep:
 	docker image prune --all -f; docker container prune -f; docker volume prune -f; docker rmi $(docker images -q); docker rmi $(docker images -q -f dangling=true); docker rmi $(docker images | grep "^<none>" | awk "{print $3}"); docker volume rm $(docker volume ls -qf dangling=true);

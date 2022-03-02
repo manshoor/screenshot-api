@@ -3,10 +3,10 @@ const {REDIS_PORT, REDIS_URL} = require("../config/config");
 const crypto                  = require('crypto');
 const redisClient             = redis.createClient(REDIS_PORT, REDIS_URL);
 redisClient.on("error", (error) => {
-    console.error(error);
+    console.error(' -------> ' + error);
 });
 redisClient.on('connect', function () {
-    console.log('Cache connected');
+    console.log(' -------> Cache connected');
 });
 const cacheData = (req, res, next) => {
     try {
@@ -20,10 +20,13 @@ const cacheData = (req, res, next) => {
                 }
 
                 if (data) {
-                    console.log('Data retrieved from Redis');
+                    const captureURLValidate = Buffer.from(req.query.capture, 'base64');
+                    const captureURL         = captureURLValidate.toString('utf-8');
+                    console.log(` -------> START: ${captureURL}`);
+                    console.log(' -------> Data retrieved from Redis');
                     res.status(200).send(JSON.parse(data));
                 } else {
-                    console.log('No Data Found, let\'s fish for some data! ');
+                    console.log(' -------> No Data Found, let\'s fish for some data! ');
                     next();
                 }
             });
