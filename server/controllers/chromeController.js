@@ -3,7 +3,8 @@ const {
           APP_DOMAIN,
           REDIS_PORT,
           REDIS_URL,
-          REDIS_CACHE_TIME
+          REDIS_CACHE_TIME,
+          REDIS_PASSWORD
       }                    = require("../config/config");
 const puppeteer            = require('puppeteer');
 const fs                   = require('fs');
@@ -13,6 +14,7 @@ const {v4: uuidv4}         = require('uuid');
 const userAgents           = require("user-agents");
 const redis                = require('redis');
 const redisClient          = redis.createClient(REDIS_PORT, REDIS_URL);
+redisClient.auth(REDIS_PASSWORD);
 const crypto               = require('crypto');
 exports.screenshot         = async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');

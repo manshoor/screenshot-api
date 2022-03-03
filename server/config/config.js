@@ -1,6 +1,7 @@
 module.exports = {
     REDIS_URL       : process.env.REDIS_URL || "redis",
     REDIS_PORT      : process.env.REDIS_PORT || 6379,
+    REDIS_PASSWORD  : process.env.REDIS_PASSWORD || 'XDFdwT7RnMAb',
     REDIS_CACHE_TIME: process.env.REDIS_CACHE_TIME || 60 * 60 * 1000,
     APP_SECRET      : process.env.APP_SECRET,
     PORT            : process.env.PORT || 3000,

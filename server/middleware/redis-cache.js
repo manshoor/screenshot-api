@@ -1,7 +1,12 @@
-const redis                   = require('redis');
-const {REDIS_PORT, REDIS_URL} = require("../config/config");
-const crypto                  = require('crypto');
-const redisClient             = redis.createClient(REDIS_PORT, REDIS_URL);
+const {
+          REDIS_PORT,
+          REDIS_URL,
+          REDIS_PASSWORD
+      }           = require("../config/config");
+const redis       = require('redis');
+const crypto      = require('crypto');
+const redisClient = redis.createClient(REDIS_PORT, REDIS_URL);
+redisClient.auth(REDIS_PASSWORD);
 redisClient.on("error", (error) => {
     console.error(` -------> \n ${error} \n`);
 });
