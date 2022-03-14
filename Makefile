@@ -20,13 +20,13 @@ up-d-prod:
 	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 up-d-prod-build:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
 
 up-d-prod-build-node:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --build node-app
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --build --remove-orphans node-app
 
 up-d-prod-build-node-force:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --no-deps --build node-app
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --no-deps --build --remove-orphans node-app
 
 prod-push-node:
 	docker-compose -f docker-compose.yml -f docker-compose.prod.yml push node-app
@@ -67,3 +67,5 @@ monitor-nginx:
 clean-up-deep:
 	docker image prune --all -f; docker container prune -f; docker volume prune -f; docker rmi $(docker images -q); docker rmi $(docker images -q -f dangling=true); docker rmi $(docker images | grep "^<none>" | awk "{print $3}"); docker volume rm $(docker volume ls -qf dangling=true);
 
+prune-force:
+	docker system prune -a -f; docker volume prune --force; docker image prune --force; docker container prune --force; docker volume prune -f;

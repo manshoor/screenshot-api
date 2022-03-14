@@ -15,8 +15,8 @@ const userAgents           = require("user-agents");
 const redis                = require('redis');
 const redisClient          = redis.createClient(REDIS_PORT, REDIS_URL);
 redisClient.auth(REDIS_PASSWORD);
-const crypto               = require('crypto');
-exports.screenshot         = async (req, res) => {
+const crypto       = require('crypto');
+exports.screenshot = async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
     // if screenshots directory is not exist then create one
@@ -34,7 +34,7 @@ exports.screenshot         = async (req, res) => {
               delay          = false,
               width          = 1366,
               height         = 1080,
-              timeout        = 500,
+              timeout        = 1000,
           }                            = query;
     const qual                         = getInt(quality);
     const intTimeOut                   = getInt(timeout);
@@ -63,7 +63,7 @@ exports.screenshot         = async (req, res) => {
     const siteURL = captureURL;
     const name    = uuidv4();
     // Launch puppeteer
-    await console.log(` -------> START: \n ${siteURL} \n `);
+    await console.warn(` -------> START: \n ${siteURL} \n `);
     // Path to temp folder
     let path = `${tempFolder}/${name}.${type}`;
 
@@ -108,16 +108,8 @@ exports.screenshot         = async (req, res) => {
         const page = await browser.newPage();
 
         // Configure the navigation timeout
-        // await page.setDefaultNavigationTimeout(0);
-        await page.setDefaultNavigationTimeout(60000); //timeout 60 seconds now
+        await page.setDefaultNavigationTimeout(0); //timeout 60 seconds now
 
-        // const dimensions = await page.evaluate((intWidth, intHeight) => {
-        //   return {
-        //     width: intWidth,
-        //     height: intHeight,
-        //     deviceScaleFactor: window.devicePixelRatio
-        //   };
-        // }, intWidth, intHeight);
 
         await page.setViewport({width: intWidth, height: intHeight, deviceScaleFactor: 1});
 
@@ -130,21 +122,18 @@ exports.screenshot         = async (req, res) => {
                 platform  : 'MacIntel',
             },
         ]);
-        await console.log(` -------> userAgent: \n ${userAgent.toString()} \n`);
         await page.setUserAgent(userAgent.toString()); // added this
-        let status = await page.goto(siteURL, {waitUntil: ['load', 'networkidle0', 'domcontentloaded'],}).catch(e => void 0);
-        await page.waitForResponse(response => response.status() === 200, {timeout: intTimeOut}).catch(e => void 0);
-        await console.log(`page status code: \n ${status.status()} \n`);
-        await console.log(' -------> \n page has been loaded! \n');
-
-        //scroll to bottom
-        await autoScroll(page);
-
-        // await waitForLazyImages(page);
-
-        await page.waitForTimeout(intTimeOut);
-
-        await page.emulateMediaType('screen');
+        let status = await page.goto(siteURL, {waitUntil: ['networkidle0', 'domcontentloaded'], timeout: 0}).catch(e => console.log(e.toString()));
+        await Promise.all([
+            page.waitForResponse(response => response.status() === 200, {timeout: intTimeOut}).catch(e => console.log(e.toString())),
+            // page.evaluate(() => document.body.innerHTML),
+            autoScroll(page).catch(e => console.log(e.toString())),
+            page.waitForTimeout(intTimeOut).catch(e => console.log(e.toString())),
+            page.emulateMediaType('screen').catch(e => console.log(e.toString())),
+        ]).then(results => {
+            console.log(` -------> status: \n ${status.status()} \n`);
+            console.log(` -------> results: \n Navigation Done \n`);
+        }).catch(e => console.error(e.toString()));
 
         await page.screenshot({
             path          : path,
@@ -152,7 +141,7 @@ exports.screenshot         = async (req, res) => {
             type          : type,
             omitBackground: omitBackground,
             quality       : qual
-        }).catch(e => console.log(` -------> \n unable to capture ${e} \n`));
+        }).catch(e => console.error(` -------> \n unable to capture ${e.toString()} \n`));
 
         await browser.close();
         const responseData = {status: 'success', siteName: name, fileName: `${APP_DOMAIN}/${name}.${type}`};
@@ -163,13 +152,13 @@ exports.screenshot         = async (req, res) => {
         if (browser !== null) {
             res.status(500).send({status: 'fail', msg: err.message});
         }
-        await console.log(` ------->  Error: \n ${err.message} \n`);
+        await console.error(` ------->  Error: \n ${err.message} \n`);
     } finally {
         if (browser !== null) {
             await browser.close();
         }
-        await console.log(` -------> \n screenshots captured \n`);
-        await console.log(` -------> \n END: ${siteURL} \n`);
+        await console.warn(` -------> \n screenshots captured \n`);
+        await console.warn(` -------> \n END: ${siteURL} \n`);
     }
 };
 

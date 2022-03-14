@@ -28,12 +28,19 @@ app.use(express.json());
 app.disable('x-powered-by');
 
 app.get("/", (req, res) => {
-    res.send("<h2>Reinventing the wheel. Again. </h2>");
-    console.log(" \n -------> Reinventing the wheel. Again. \n ");
+    console.log(" \n -------> welcome. \n ");
+    res.status(200).json({
+        status: 'success',
+        result: 'welcome!'
+    });
 });
 app.get("/api/v1", (req, res) => {
+    console.log(" \n -------> This changes nothing, don't look \n ");
+    res.status(200).json({
+        status: 'success',
+        result: 'invalid url'
+    });
     res.send("<h2>welcome to screenshot API</h2>");
-    console.log(" \n -------> yeah it ran \n ");
 });
 app.use(express.static(__dirname + '/tmp'));
 app.use("/api/v1/screenshot", screenshotRouter);
