@@ -2,10 +2,11 @@ const {
           REDIS_PORT,
           REDIS_URL,
           REDIS_PASSWORD
-      }           = require("../config/config");
-const redis       = require('redis');
-const crypto      = require('crypto');
-const redisClient = redis.createClient(REDIS_PORT, REDIS_URL);
+      }            = require("../config/config");
+const redis        = require('redis');
+const crypto       = require('crypto');
+const {fileExists} = require('../helper/validator');
+const redisClient  = redis.createClient(REDIS_PORT, REDIS_URL);
 redisClient.auth(REDIS_PASSWORD);
 redisClient.on("error", (error) => {
     console.error(` -------> \n ${error} \n`);
@@ -27,9 +28,15 @@ const cacheData = (req, res, next) => {
                 if (data) {
                     const captureURLValidate = Buffer.from(req.query.capture, 'base64');
                     const captureURL         = captureURLValidate.toString('utf-8');
-                    console.log(` -------> START: \n ${captureURL} \n `);
-                    console.log(' \n -------> Data retrieved from Redis \n ');
-                    res.status(200).send(JSON.parse(data));
+                    const responseData       = JSON.parse(data);
+                    if (!fileExists(responseData.siteName)) {
+                        console.log(' \n -------> File not found, sending the request to generate the file again. \n ');
+                        next();
+                    } else {
+                        console.log(` -------> START: \n ${captureURL} \n `);
+                        console.log(' \n -------> Data retrieved from Redis \n ');
+                        res.status(200).send(responseData);
+                    }
                 } else {
                     console.log(' \n -------> No Data Found, let\'s fish for some data! \n');
                     next();

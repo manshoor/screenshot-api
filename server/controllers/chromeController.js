@@ -73,6 +73,53 @@ exports.screenshot = async (req, res) => {
         fs.mkdirSync('tmp');
     }
 
+    const args  = [
+        '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"',
+        '--ignore-certificate-errors',
+        '--ignore-certificate-errors-skip-list',
+        '--start-maximized', // Start in maximized state
+        `--window-size=${width || 1366},${height || 1080}`,
+        '--autoplay-policy=user-gesture-required',
+        '--disable-background-networking',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-breakpad',
+        '--disable-client-side-phishing-detection',
+        '--disable-component-update',
+        '--disable-default-apps',
+        '--disable-dev-shm-usage',
+        '--disable-domain-reliability',
+        '--disable-extensions',
+        '--disable-features=AudioServiceOutOfProcess',
+        '--disable-hang-monitor',
+        '--disable-ipc-flooding-protection',
+        '--disable-notifications',
+        '--disable-offer-store-unmasked-wallet-cards',
+        '--disable-popup-blocking',
+        '--disable-print-preview',
+        '--disable-prompt-on-repost',
+        '--disable-renderer-backgrounding',
+        '--disable-setuid-sandbox',
+        '--disable-speech-api',
+        '--disable-sync',
+        '--hide-scrollbars',
+        '--ignore-gpu-blacklist',
+        '--metrics-recording-only',
+        '--mute-audio',
+        '--no-default-browser-check',
+        '--no-first-run',
+        '--no-pings',
+        '--no-sandbox',
+        '--no-zygote',
+        '--password-store=basic',
+        '--use-gl=swiftshader',
+        '--use-mock-keychain',
+        '--disable-infobars',
+        '--disable-accelerated-2d-canvas',
+        '--disable-component-extensions-with-background-pages',
+        '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+        '--enable-features=NetworkService,NetworkServiceInProcess',
+    ];
     let browser = null;
     try {
 
@@ -81,27 +128,7 @@ exports.screenshot = async (req, res) => {
             headless      : true,
             // devtools: true,
             ignoreHTTPSErrors: true,
-            args             : [
-                '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"',
-                '--ignore-certificate-errors',
-                '--window-size=1366,1080',
-                // important to add
-                '--disable-gpu',
-                '--disable-setuid-sandbox',
-                '--no-sandbox',
-                // important to add
-                // This will write shared memory files into /tmp instead of /dev/shm,
-                // because Docker’s default for /dev/shm is 64MB
-                '--disable-dev-shm-usage',
-                '--allow-external-pages',
-                '--data-reduction-proxy-http-proxies',
-                '--start-maximized', // Start in maximized state
-                '--unlimited-storage',
-                '--disable-accelerated-2d-canvas',
-                '--full-memory-crash-report',
-                '--headless',
-                // '--single-process',
-            ],
+            args             : args,
             userDataDir      : tempFolder,
             // 'dumpio'         : true,
         });
@@ -123,7 +150,10 @@ exports.screenshot = async (req, res) => {
             },
         ]);
         await page.setUserAgent(userAgent.toString()); // added this
-        let status = await page.goto(siteURL, {waitUntil: ['networkidle0', 'domcontentloaded'], timeout: 0}).catch(e => console.log(e.toString()));
+        let status = await page.goto(siteURL, {
+            waitUntil: ['networkidle2'],
+            timeout  : 0
+        }).catch(e => console.log(e.toString()));
         await Promise.all([
             page.waitForResponse(response => response.status() === 200, {timeout: intTimeOut}).catch(e => console.log(e.toString())),
             // page.evaluate(() => document.body.innerHTML),

@@ -64,11 +64,11 @@ services:
       - node-app
     networks:
       - app-backend-network
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: 1G
 
 networks:
   app-backend-network:

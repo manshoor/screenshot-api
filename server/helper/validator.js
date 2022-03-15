@@ -1,4 +1,5 @@
 const {URL} = require('url');
+const fs = require("fs");
 
 function getInt(str) {
     return /[0-9]+/.test(str) ? parseInt(str) : undefined;
@@ -22,4 +23,8 @@ function isValidUrl(str) {
     }
 }
 
-module.exports = {getInt, getUrlFromPath, isValidUrl};
+function fileExists(path) {
+    return fs.existsSync(`./tmp/${path}.jpeg`);
+}
+
+module.exports = {getInt, getUrlFromPath, isValidUrl, fileExists};

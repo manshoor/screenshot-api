@@ -9,13 +9,17 @@ services:
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
   ### NODE #########################################
   node-app:
-#    deploy:
-#      replicas: 2 # we can increase it in future to as many as we want
-#      restart_policy:
-#        condition: any
-#      update_config:
-#        parallelism: 2
-#        delay: 15s
+    deploy:
+      replicas: 2 # we can increase it in future to as many as we want
+      restart_policy:
+        condition: any
+      update_config:
+        parallelism: 2
+        delay: 15s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 3G
     build:
       context: ./server
       dockerfile: Dockerfile.Prod
