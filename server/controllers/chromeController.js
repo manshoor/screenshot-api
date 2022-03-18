@@ -129,7 +129,7 @@ exports.screenshot = async (req, res) => {
             // devtools: true,
             ignoreHTTPSErrors: true,
             args             : args,
-            userDataDir      : tempFolder,
+            // userDataDir      : tempFolder,
             // 'dumpio'         : true,
         });
         const page = await browser.newPage();
