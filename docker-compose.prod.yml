@@ -10,7 +10,7 @@ services:
   ### NODE #########################################
   node-app:
     deploy:
-      replicas: 3 # we can increase it in future to as many as we want
+      replicas: 4 # we can increase it in future to as many as we want
       restart_policy:
         condition: any
       update_config:
