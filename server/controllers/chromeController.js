@@ -35,7 +35,10 @@ exports.screenshot = async (req, res) => {
               width          = 1366,
               height         = 1080,
               timeout        = 1000,
+              device         = 'desktop' // default is always going to be desktop
           }                            = query;
+    // setting the device to iphone 13 pro
+    const mobile                       = puppeteer.devices['iPhone 13 Pro'];
     const qual                         = getInt(quality);
     const intTimeOut                   = getInt(timeout);
     const intWidth                     = getInt(width);
@@ -150,6 +153,11 @@ exports.screenshot = async (req, res) => {
             },
         ]);
         await page.setUserAgent(userAgent.toString()); // added this
+        // checking if the device is set to mobile
+        if (device === 'mobile') {
+            // emulate the page with the mobile settings
+            await page.emulate(mobile);
+        }
         let status = await page.goto(siteURL, {
             waitUntil: ['networkidle2'],
             timeout  : 0
