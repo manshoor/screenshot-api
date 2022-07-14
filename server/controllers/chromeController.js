@@ -212,6 +212,8 @@ async function autoScroll(page) {
                 totalHeight += distance;
 
                 if (totalHeight >= scrollHeight) {
+                    // jump to the top to avoid sticky headers issues
+                    window.scrollTo(0, 0);
                     clearInterval(timer);
                     resolve();
                 }

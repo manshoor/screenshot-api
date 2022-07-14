@@ -30,7 +30,7 @@ COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
 # Install dependencies and clear npm cache
 #RUN npm install && npm cache clean --force
 USER 0
-RUN npm install -g npm@8.5.2
+RUN npm install -g npm@8.13.1
 RUN npm install --global nodemon
 RUN npm install && npm cache clean --force
 #RUN npm i --only=production && npm cache clean --force
