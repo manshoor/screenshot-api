@@ -33,7 +33,11 @@ USER 0
 RUN npm install -g npm@10.2.3
 RUN npm install --global nodemon
 RUN npm install && npm cache clean --force
-#RUN npm i --only=production && npm cache clean --force
+# Run npm-check-updates to see available updates:
+#RUN npm outdated
+#RUN ncu
+# Automatically update your package.json file:
+#RUN ncu -u
 COPY . .
 ARG PORT
 COPY --chown=node:node ["package.*json", "npm-shrinkwrap.json*", "./"]
