@@ -22,7 +22,7 @@ services:
   ### NODE #########################################
   node-app:
 #    container_name: puppeeteer
-    restart: always
+    restart: on-failure
     build:
       context: ./server
       dockerfile: Dockerfile

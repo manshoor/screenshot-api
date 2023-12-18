@@ -11,7 +11,7 @@ const fs                   = require('fs');
 const {getInt, isValidUrl} = require('../helper/validator');
 const {parse}              = require("url");
 const {v4: uuidv4}         = require('uuid');
-const userAgents           = require("user-agents");
+const UserAgents           = require("user-agents");
 const redis                = require('redis');
 const redisClient          = redis.createClient(REDIS_PORT, REDIS_URL);
 redisClient.auth(REDIS_PASSWORD);
@@ -77,7 +77,6 @@ exports.screenshot = async (req, res) => {
     }
 
     const args  = [
-        '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"',
         '--ignore-certificate-errors',
         '--ignore-certificate-errors-skip-list',
         '--start-maximized', // Start in maximized state
@@ -143,14 +142,12 @@ exports.screenshot = async (req, res) => {
 
         await page.setViewport({width: intWidth, height: intHeight, deviceScaleFactor: 1});
 
-        const userAgent = new userAgents([
-            /Safari/,
-            {
-                connection: {
-                    type: 'wifi',
-                },
-                platform  : 'MacIntel',
-            },
+        const userAgent = new UserAgents([
+          /Safari/,
+          {
+            platform      : 'MacIntel',
+            deviceCategory: 'desktop',
+          }
         ]);
         await page.setUserAgent(userAgent.toString()); // added this
         // checking if the device is set to mobile
