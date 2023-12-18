@@ -1,5 +1,5 @@
 # specify base image from dockerhub
-FROM node:lts-alpine3.15@sha256:425c81a04546a543da824e67c91d4a603af16fbc3d875ee2f276acf8ec2b1577
+FROM node:lts-alpine3.19@sha256:e96618520c7db4c3e082648678ab72a49b73367b9a1e7884cf75ac30a198e454
 
 LABEL version="1.0"
 LABEL maintainer="Manshoor Ahmad"
